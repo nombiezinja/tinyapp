@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TinyApp</title>
+  </head>
+  <body style="font-size:20px; padding:50px;">
+    <%- include('partials/_header') %>
+      <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
+        <h2>Register as a user</h2>
+        <form method="POST" action= "/register">
+          <label for="email">Enter your email:</label>
+          <input id="email" type="email" name="email" style="width:   233px">
+          <br>
+          <label for='password'>Enter your password:</label>
+          <input id="password" type="passord" name="password" style  ="width: 200px">
+          <br>
+           <button type="submit">Submit</button>
+        </form>
+      </div>
+  </body>
+</html>
