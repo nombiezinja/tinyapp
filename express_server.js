@@ -41,6 +41,11 @@ app.get('/urls/new', (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+//login page
+app.get('/login', (req, res) => {
+  res.render("login", {username:req.cookies['username']});
+});
+
 //set cookie when submit log in form, redirect to log in page
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);

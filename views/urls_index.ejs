@@ -4,20 +4,22 @@
   </head>
   <body style="font-size:20px; padding:50px;">
   <%- include('partials/_header') %>
-    <ul>
-      <% for (var url in urls) {%>
+  <div style='padding:40px'>
+    <% for (var url in urls) {%>
+
       <hr>
       <li>
       <%= url + ' : ' + urls[url] %>
           <form method='POST' action= '/urls/<%= url %>/delete'>
             <button type='submit'>delete</button>
-          </form>  <button><a href = '/urls/<%= url %>'> Edit </a></button>
+          </form>
+          <button><a href = '/urls/<%= url %>'> Edit </a></button>
       <% } %>
       </li>
       <hr>
-    </ul>
   <br>
   <br>
     <a href = '/urls/new'>Click here to shorten a new URL</a>
+    </div>
   </body>
 </html>
