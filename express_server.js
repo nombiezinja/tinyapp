@@ -2,8 +2,10 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
+const cookieParser - require('cookie-parser');
 
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 app.set('view engine', 'ejs');
 
@@ -21,7 +23,7 @@ app.get('/urls.json', (req, res) => {
 });
 
 //say hello for /hello page
-app.get('/hello', (req,res) => {
+app.get('/hello', (req, res) => {
   res.end('<html><body>Hello<b>world</b><body></html>\n');
 });
 
@@ -61,9 +63,11 @@ app.get("/urls/:id", (req, res) => {
 //updating longURL on its shortURL page
 //redireting to shortURL page
 app.post("/urls/:id", (req, res) => {
-  let shortURL = req.originalUrl.slice(6);
+  // let shortURL = req.originalUrl.slice(6);
+  // console.log(req.params.id);
+  let shortURL = req.params.id
   urlDatabase[shortURL] = req.body.newURL;
-  res.redirect(shortURL);
+  res.redirect(shortURL);//why does this work??
 });
 
 //redirects to actual website of longURL
