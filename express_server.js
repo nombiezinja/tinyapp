@@ -29,13 +29,16 @@ app.get('/hello', (req, res) => {
 
 //call the urls_index.ejs file to display for /urls page
 app.get('/urls', (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase,
+                       username: req.cookies["username"]
+                     };
   res.render('urls_index', templateVars);
 });
 
 //call urls_new.ejs to display for /urls/new page
 app.get('/urls/new', (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies["username"]};
+  res.render("urls_new", templateVars);
 });
 
 app.post('/login', (req, res) => {
@@ -61,7 +64,9 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 //display shortURL on new after form submitted
 //(realistically: any link that says /url/xxx displays xxx)
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id };
+  let templateVars = { shortURL: req.params.id,
+                       username: req.cookies["username"]
+                     };
   res.render('urls_show', templateVars);
 });
 
