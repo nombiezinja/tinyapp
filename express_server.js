@@ -41,11 +41,17 @@ app.get('/urls/new', (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+//set cookie when submit log in form, redirect to log in page
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect('/login');
 })
 
+//clear cookie when submit log out form, redirect to /urls
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
+})
 //generate random shortURL for longURL submitted through form
 //put in urlDatabase object, redirect
 app.post('/urls', (req, res) => {
