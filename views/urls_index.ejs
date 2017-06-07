@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>TinyApp</title>
   </head>
   <body>
     <%- include('partials/_header') %>
     <% for (var url in urls) {%>
-    <li><%= url + ' : ' + urls[url] %></li>
+    <li><%= url + ' : ' + urls[url] %>
+        <form method="POST" action= "/urls/<%= url %>/delete">
+          <button type="submit">delete</button>
+        </form>
+    </center>
+    </li>
     <% } %>
-<!--     <li><%- JSON.stringify(urls) %></li>
- -->
-    <a href = "a link">Click here to shorten a new URL</a>
+    </div>
+    <br>
+    <br>
+    <a href = "/urls/new">Click here to shorten a new URL</a>
   </body>
 </html>
