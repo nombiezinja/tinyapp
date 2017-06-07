@@ -44,6 +44,10 @@ app.get("/urls/:id", (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  let longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
 
 
 app.listen(PORT, () => {
