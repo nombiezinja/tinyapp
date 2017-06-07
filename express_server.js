@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({extended:true}));
 
-app.set("view engine", "ejs");
+app.set('view engine', 'ejs');
 
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
@@ -29,29 +29,28 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
+app.get('/urls/new', (req, res) => {
   res.render("urls_new");
+});
+
+app.post('/urls', (req, res) => {
+  let shortURL = rando(6)
+  urlDatabase[shortURL] = req.body.longURL
+  res.redirect('http://localhost:3000/urls/' + shortURL);
 });
 
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id };
-  res.render("urls_show", templateVars);
+  res.render('urls_show', templateVars);
 });
 
-app.get("/urls/make_new", (req, res) => {
-  res.render("urls_new");
-});
 
-app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
 
-function randomString(length) {
+let rando = function randomString(length) {
     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
 }
