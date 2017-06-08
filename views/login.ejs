@@ -5,18 +5,14 @@
     <% include partials/_header %>
 
     <% if (username) { %>
-      <div style="background-color: #ffffff; color:#666666; padding-left:26px; padding-right:5px; padding-top:5px; padding-bottom:5px;">
-        Logged in as : <strong><%= username %></strong>
-      </div>
 
-      <div style="background-color: #ffffff; color:#666666; padding-left:5px; padding-right:  5px; padding-top:5px; padding-bottom:5px;">
-      <form action="/logout" method="POST" style="margin:20px;">
-          <label>Log out</label>
-          <input type="submit" value="Log out">
+        <div id="4b" style="background-color: #FFFFFF; color: #A9A9A9; padding-left: 5px; padding-right: 100px; padding-top: 10px; padding-bottom: 10px;">
+          <h2>  Welcome back friendo ◕ ◡ ◕</h2>
+        </div>
 
       <% } else { %>
 
-      <div style="background-color: #ffffff; color:#666666; padding-left:0px; padding-right:  5px; padding-top:5px; padding-bottom:5px;">
+      <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
         <h2>Login</h2>
         <form method="POST" action= "/login">
           <label for="email">Enter your email:</label>
@@ -37,8 +33,6 @@
       <% } %>
 
 
-    <div id="4b" style="background-color: #FFFFFF; color: #A9A9A9; padding-left: 5px; padding-right: 100px; padding-top: 10px; padding-bottom: 10px;">
-      Successfully logged in as <%= username %>
-    </div>
+
   </body>
 </html>
