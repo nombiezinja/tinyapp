@@ -9,38 +9,42 @@ const users = {
     email: "user2@example.com",
     password: "bonkers"
   }
-
-
 }
 
-console.log(users.user2ID.password);
-// for (const userID in users) {
+const urlDatabase = {
+  'b2xVn2': {
+    link : 'http://www.lighthouselabs.ca',
+    userID: 'user1'
+  },
+  '9sm5xK': {
+    link : 'http://www.google.com',
+    userID: 'user2'
+  },
+  '8jf92V': {
+    link : 'http://www.gmail.com',
+    userID: 'user1'
+  }
+}
+var username = "user1"
 
-//   // if(userID.hasOwnProperty('user@example.com')){
-//   //    console.log("it worked");
+const findlink = (username) => {
+  const userURL = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === username && !userURL[shortURL]) {
+       userURL[shortURL] = urlDatabase[shortURL].link;
+    }
+  }
+  return userURL
+}
 
-//   //  }
-
-//   // if ('user@example.com' in userID.email) {
-//     // console.log('it worked');
-//   // }
-//   console.log(userID.email)
-//   console.log(typeof userID.email)
-//   console.log(typeof userID)
-
+console.log(findlink(username));
+// for (let shortURL in urlDatabase) {
+//   console.log(urlDatabase[shortURL].userID)
 // }
 
-// const obj = {
-//   'john' :{
-//     age: '23',
-//     food: 'burger',
-//   },
-//   'nancy' :{
-//     age:'33',
-//     food:'noodles',
-//   }
+// for (let userID in users) {
+//   console.log(users[userID].id)
 // }
 
-// for (const name in obj) {
-//   console.log(typeof name);
-// }
+
+

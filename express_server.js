@@ -6,26 +6,65 @@ const cookieParser = require('cookie-parser');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-
+app.use(function (err, req, res, next) {
+  console.error(err.stack);
+  res.status(403).render('error403');
+});
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
-};
-
-const users = {
-  "user1ID": {
-    id: "user1",
-    email: "user@example.com",
-    password: "bananas"
+  'b2xVn2': {
+    link : 'http://www.lighthouselabs.ca',
+    userID: 'user1'
   },
- "user2ID": {
-    id: "user2",
-    email: "user2@example.com",
-    password: "bonkers"
+  '9sm5xK': {
+    link : 'http://www.google.com',
+    userID: 'user2'
+  },
+  '8jf92V': {
+    link : 'http://www.gmail.com',
+    userID: 'user1'
   }
 }
+
+
+
+const users = {
+  'user1ID': {
+    id: 'user1',
+    email: 'user@example.com',
+    password: 'bananas'
+  },
+ 'user2ID': {
+    id: 'user2',
+    email: 'user2@example.com',
+    password: 'bonkers'
+  }
+}
+
+const findLink = (username) => {
+  const userURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === username && !userURLs[shortURL]) {
+       userURLs[shortURL] = urlDatabase[shortURL].link;
+    }
+  }
+  return userURLs;
+}
+// app.use(handleErrors);
+
+
+
+// function handleErrors(err, req, res, next) {
+//   res.send('/errors');
+// }
+
+// app.get('/', (req,res, next) => {
+//   res.locals.user = userService.find(req.cookie.userId);
+//   next();
+// });
+
+
 
 app.get('/', (req, res) => {
   res.end('Hello!');
@@ -40,10 +79,15 @@ app.get('/hello', (req, res) => {
   res.end('<html><body>Hello<b>world</b><body></html>\n');
 });
 
+
 //call the urls_index.ejs file to display for /urls page
 app.get('/urls', (req, res) => {
-  let templateVars = { urls: urlDatabase,
-                       username: req.cookies["username"],
+  //use array, push every array found, then on views page
+  //change desplay method to array method
+  const userUniqueUrl = findLink(req.cookies['username']);
+
+  let templateVars = { urls: userUniqueUrl,
+                       username: req.cookies['username'],
                        users: users
                      };
   res.render('urls_index', templateVars);
@@ -51,9 +95,9 @@ app.get('/urls', (req, res) => {
 
 //call urls_new.ejs to display for /urls/new page
 app.get('/urls/new', (req, res) => {
-  let templateVars = { username: req.cookies["username"],
+  let templateVars = { username: req.cookies['username'],
                        users: users};
-  res.render("urls_new", templateVars);
+  res.render('urls_new', templateVars);
 });
 
 app.get('/register', (req, res) => {
@@ -98,7 +142,7 @@ app.post('/register', (req, res) => {
 
 //login page
 app.get('/login', (req, res) => {
-  res.render("login", {users: users,
+  res.render('login', {users: users,
                        username:req.cookies['username']});
 });
 
@@ -155,29 +199,43 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 //display shortURL on new after form submitted
 //(realistically: any link that says /url/xxx displays xxx)
-app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id,
-                       username: req.cookies["username"],
+app.get('/urls/:id', (req, res) => {
+
+  const userUniqueUrl = findLink(req.cookies['username']);
+
+  let templateVars = { userUrls: userUniqueUrl,
+                       allUrls:  urlDatabase,
+                       shortURL: req.params.id,
+                       username: req.cookies['username'],
                        users: users
                      };
+
+  if(!req.cookies['username']) {
+    res.render('registration', templateVars);
+  } else {
   res.render('urls_show', templateVars);
+  }
 });
 
 //updating longURL on its shortURL page
 //redireting to shortURL page
-app.post("/urls/:id", (req, res) => {
+app.post('/urls/:id', (req, res) => {
   // let shortURL = req.originalUrl.slice(6);
-  // console.log(req.params.id);
   let shortURL = req.params.id
   urlDatabase[shortURL] = req.body.newURL;
   res.redirect(shortURL);//why does this work??
 });
 
 //redirects to actual website of longURL
-app.get("/u/:shortURL", (req, res) => {
+app.get('/u/:shortURL', (req, res) => {
   let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
+
+// app.use((req,res,next) => {
+//   res.status(403).render('error403', {username: req.cookies['username'],
+//                        users: users})
+// });
 
 
 app.listen(PORT, () => {

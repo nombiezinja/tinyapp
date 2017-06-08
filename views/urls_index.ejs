@@ -4,22 +4,28 @@
   </head>
   <body style="font-size:20px; padding:50px;">
   <%- include('partials/_header') %>
-  <div style='padding:40px'>
-    <% for (var url in urls) {%>
-
-      <hr>
-      <li>
-      <%= url + ' : ' + urls[url] %>
-          <form method='POST' action= '/urls/<%= url %>/delete'>
-            <button type='submit'>delete</button>
-          </form>
-          <button><a href = '/urls/<%= url %>'> Edit </a></button>
-      <% } %>
-      </li>
-      <hr>
-  <br>
-  <br>
+  <% if (!username) { %>
+    <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
+      <h1>Welcome!<h1>
+      <h2>Please <a href = '/register'>register </a>or <a href = '/login'>log in</a> before shortening your URL (´ω｀)</h2>
+    </div>
+  <% } else { %>
+    <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
+      <% for (let url in urls) {%>
+       <hr>
+       <li>
+       <%= url + ' : ' + urls[url] %>
+           <form method='POST' action= '/urls/<%= url %>/delete'>
+             <button type='submit'>delete</button>
+           </form>
+           <button><a href = '/urls/<%= url %>'> Edit </a></button>
+       <% } %>
+       </li>
+       <hr>
+       <br>
+       <br>
     <a href = '/urls/new'>Click here to shorten a new URL</a>
     </div>
+    <% } %>
   </body>
 </html>
