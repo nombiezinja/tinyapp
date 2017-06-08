@@ -60,14 +60,40 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   const userID = rando(6);
-  if (!users[userID]) {
-     users[userID] = { id: userID,
-                       email: req.body.email,
-                       password: req.body.password }
+  if(!req.body.email||!req.body.password) {
+    res.sendStatus(403);
   }
+
+  const findUser = (email) => {
+    let flag = false;
+    for (let registered in users) {
+      if (users[registered].email === email) {
+        console.log(users[registered].email);
+        console.log("we found a duplicate email");
+        // return users[registered]
+        flag = true;
+        return flag;
+      }
+    }
+  }
+
+  console.log(findUser(req.body.email));
+
+  if (findUser(req.body.email)) {
+    res.sendStatus(403);
+  }
+
+  if (!users[userID]) {
+    users[userID] = { id: userID,
+                      email: req.body.email,
+                      password: req.body.password }
+  }
+
   console.log(users);
-  res.redirect('/urls');
-});
+  res.cookie('username', userID);
+  res.redirect('/urls')
+
+});//for app.post
 
 //login page
 app.get('/login', (req, res) => {
