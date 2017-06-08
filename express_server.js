@@ -43,14 +43,16 @@ app.get('/hello', (req, res) => {
 //call the urls_index.ejs file to display for /urls page
 app.get('/urls', (req, res) => {
   let templateVars = { urls: urlDatabase,
-                       username: req.cookies["username"]
+                       username: req.cookies["username"],
+                       users: users
                      };
   res.render('urls_index', templateVars);
 });
 
 //call urls_new.ejs to display for /urls/new page
 app.get('/urls/new', (req, res) => {
-  let templateVars = { username: req.cookies["username"]};
+  let templateVars = { username: req.cookies["username"],
+                       users: users};
   res.render("urls_new", templateVars);
 });
 
@@ -58,19 +60,18 @@ app.get('/register', (req, res) => {
   res.render('registration', {username:req.cookies['username']});
 })
 
+//registration submission
 app.post('/register', (req, res) => {
   const userID = rando(6);
+//if no data submitted
   if(!req.body.email||!req.body.password) {
     res.sendStatus(403);
   }
-
+//if email already exists
   const findUser = (email) => {
     let flag = false;
     for (let registered in users) {
       if (users[registered].email === email) {
-        console.log(users[registered].email);
-        console.log("we found a duplicate email");
-        // return users[registered]
         flag = true;
         return flag;
       }
@@ -97,13 +98,39 @@ app.post('/register', (req, res) => {
 
 //login page
 app.get('/login', (req, res) => {
-  res.render("login", {username:req.cookies['username']});
+  res.render("login", {users: users,
+                       username:req.cookies['username']});
 });
 
 //set cookie when submit log in form, redirect to log in page
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/login');
+
+  const userEmail = req.body.email
+  //search to see if username matches database
+  const findUser = (email) => {
+    for (let registered in users) {
+      if(users[registered].email === email) {
+        let user_ID = users[registered]
+        return user_ID
+      }
+    }
+  }
+
+   //search to see if password matches username
+  if(!findUser(userEmail)) {
+    res.sendStatus(403);
+  } else {
+    let user_ID = findUser(userEmail);
+    if (user_ID.password === req.body.password) {
+      res.cookie ('username', user_ID.id);
+      res.redirect('/login');
+    } else {
+      res.sendStatus(403);
+    }
+    // console.log(user_ID);
+
+  }
+
 })
 
 //clear cookie when submit log out form, redirect to /urls
@@ -130,7 +157,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 //(realistically: any link that says /url/xxx displays xxx)
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
-                       username: req.cookies["username"]
+                       username: req.cookies["username"],
+                       users: users
                      };
   res.render('urls_show', templateVars);
 });
