@@ -6,19 +6,9 @@
   <body style="font-size:20px; padding:50px;">
     <%- include('partials/_header') %>
     <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
-    <% if (username === allUrls[shortURL].userID) { %>
-        <h3>The short URL is <%= shortURL %></h3>
-        <form method="POST" action= "/urls/<%= shortURL %>">
-          <label for="newURL">Enter the new long URL to update the long URL for <%= shortURL %>:</label>
-          <input id="newURL" type="text" name="newURL" placeholder="http://" style="width: 300px">
-          <button type="submit">Update</button>
-        </form>
-    <% } else { %>
-        <h2>Looks like you're trying to edit someone else's URL</h2>
-        <br>
-        You can only edit your own URLs. Click <a href = '/urls'>here</a> to see a list of URLs you have converted.
-    <% } %>
-
+    <h2>Whoa there friendo! You're not logged in :0</h2>
+    <br>
+    <h3>Start creating a TinyUrl by <a href = '/registration'>registering</a> or <a href = '/login'>logging in</a></h3>
     </div>
   </body>
 </html>

@@ -4,11 +4,18 @@ const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const userService = require('./services/user_service');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
-  secret: 'Sometimes I listen to John Newman.',
+  secret: 'I listen to John Newman unironically.',
 }));
+
+app.get('/', (req,res, next) => {
+  res.locals.user = user_service.find(req.session.userID);
+  next();
+});
+
 // app.use(function (err, req, res, next) {
 //   console.error(err.stack);
 //   res.status(403).render('error403');
@@ -54,11 +61,14 @@ const findLink = (username) => {
 };
 
 
-// app.get('/', (req,res, next) => {
-//   res.locals.user = userService.find(req.cookie.userId);
-//   next();
-// });
 
+app.get('/', (req,res) => {
+  if (!req.esssion.userID) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
+});
 
 //call the urls_index.ejs file to display for /urls page
 app.get('/urls', (req, res) => {
@@ -108,16 +118,20 @@ app.post('/register', (req, res) => {
     res.status(403).send('Oops, looks like that email was already taken!');
   }
 
-  const userID = rando(6);
-  if (!users[userID]) {
+  let userId;
+  do {
+      userID = userService.randomString(8);
+  } while(users[userID])
+
+
     users[userID] = { id: userID,
                       email: req.body.email,
                       password: bcrypt.hashSync(req.body.password, 10) }
-  } else {
-    //  ?????do a while loop here later
-  }
+
+
 
   console.log(users);
+  console.log(res.locals);
   req.session.userID = userID;
   res.redirect('/urls')
 
@@ -161,10 +175,10 @@ app.post('/login', (req, res) => {
 
 })
 
-//generate random shortURL for longURL submitted through form
+//generate randomStringm shortURL for longURL submitted through form
 //put in urlDatabase object, redirect
 app.post('/urls', (req, res) => {
-  let shortURL = rando(6);
+  let shortURL = userService.randomString(6);
   console.log(shortURL);
   console.log(urlDatabase[shortURL]);
   console.log(urlDatabase);
@@ -197,9 +211,9 @@ app.get('/urls/:id', (req, res) => {
                      };
 
   if(!req.session.userID) {
-    res.render('registration', templateVars);
-  } else {
     res.render('urls_show', templateVars);
+  } else {
+    res.render('urls_show_loggedin', templateVars);
   }
 });
 
@@ -241,6 +255,6 @@ app.listen(PORT, () => {
 });
 
 //random string generating function
-let rando = function randomString(length) {
-    return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
-}
+// let rando = function randomString(length) {
+//     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
+// }
