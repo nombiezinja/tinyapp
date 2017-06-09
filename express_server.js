@@ -2,11 +2,13 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  secret: 'Sometimes I listen to John Newman.',
+}));
 // app.use(function (err, req, res, next) {
 //   console.error(err.stack);
 //   res.status(403).render('error403');
@@ -62,10 +64,10 @@ const findLink = (username) => {
 app.get('/urls', (req, res) => {
   //use array, push every array found, then on views page
   //change desplay method to array method
-  const userUniqueUrl = findLink(req.cookies['username']);
+  const userUniqueUrl = findLink(req.session.userID);
 
   let templateVars = { urls: userUniqueUrl,
-                       username: req.cookies['username'],
+                       username: req.session.userID,
                        users: users
                      };
 
@@ -74,13 +76,13 @@ app.get('/urls', (req, res) => {
 
 //call urls_new.ejs to display for /urls/new page
 app.get('/urls/new', (req, res) => {
-  let templateVars = { username: req.cookies['username'],
+  let templateVars = { username: req.session.userID,
                        users: users};
   res.render('urls_new', templateVars);
 });
 
 app.get('/register', (req, res) => {
-  res.render('registration', {username: req.cookies['username']});
+  res.render('registration', {username: req.session.userID});
 })
 
 //registration submission
@@ -103,7 +105,7 @@ app.post('/register', (req, res) => {
   console.log(findUser(req.body.email));
 
   if (findUser(req.body.email)) {
-    res.sendStatus(403);
+    res.status(403).send('Oops, looks like that email was already taken!');
   }
 
   const userID = rando(6);
@@ -116,7 +118,7 @@ app.post('/register', (req, res) => {
   }
 
   console.log(users);
-  res.cookie('username', userID);
+  req.session.userID = userID;
   res.redirect('/urls')
 
 });//for app.post
@@ -124,7 +126,7 @@ app.post('/register', (req, res) => {
 //login page
 app.get('/login', (req, res) => {
   res.render('login', {users: users,
-                       username:req.cookies['username']});
+                       username:req.session.userID});
 });
 
 //set cookie when submit log in form, redirect to log in page
@@ -141,14 +143,16 @@ app.post('/login', (req, res) => {
     }
   }
 
-
    //search to see if password matches username
   if(!findUser(userEmail)) {
-    res.sendStatus(403);
+    res.status(403).send('Oops, looks like this email hasn\'t been registered yet.');
   } else {
     let user_ID = findUser(userEmail);
     if (bcrypt.compareSync(req.body.password, user_ID.password)) {
-      res.cookie ('username', user_ID.id);
+      req.session.userID = user_ID.id;
+
+
+      // res.cookie ('username', user_ID.id);
       res.redirect('/login');
     } else {
       res.status(403).send('Oops, looks like you have entered the wrong information. Yoink!');
@@ -167,7 +171,7 @@ app.post('/urls', (req, res) => {
   console.log(urlDatabase.b2xVn2);
   if (!urlDatabase[shortURL]){
     urlDatabase[shortURL] = { link: req.body.longURL,
-                              userID : req.cookies['username']};
+                              userID : req.session.userID};
     res.redirect('http://localhost:3000/urls/' + shortURL);
   };
 });
@@ -183,16 +187,16 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 //(realistically: any link that says /url/xxx displays xxx)
 app.get('/urls/:id', (req, res) => {
 
-  const userUniqueUrl = findLink(req.cookies['username']);
+  const userUniqueUrl = findLink(req.session.userID);
 
   let templateVars = { userUrls: userUniqueUrl,
                        allUrls:  urlDatabase,
                        shortURL: req.params.id,
-                       username: req.cookies['username'],
+                       username: req.session.userID,
                        users: users
                      };
 
-  if(!req.cookies['username']) {
+  if(!req.session.userID) {
     res.render('registration', templateVars);
   } else {
     res.render('urls_show', templateVars);
@@ -215,7 +219,7 @@ app.get('/u/:shortURL', (req, res) => {
 });
 
 // app.use((req,res,next) => {
-//   res.status(403).render('error403', {username: req.cookies['username'],
+//   res.status(403).render('error403', {username: req.session.userID,
 //                        users: users})
 // });
 
@@ -223,11 +227,11 @@ app.get('/u/:shortURL', (req, res) => {
 //clear cookie when submit log out form, redirect to /urls
 app.get('/logout', (req, res) => {
   res.render('logout', {users: users,
-                     username:req.cookies['username']});
+                        username:req.session.userID});
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  req.session = null;
   res.redirect('logout');
 })
 
