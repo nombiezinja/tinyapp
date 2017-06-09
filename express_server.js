@@ -32,12 +32,12 @@ const users = {
   'user1ID': {
     id: 'user1',
     email: 'user@example.com',
-    password: 'bananas'
+    password:  bcrypt.hashSync('bonkers', 10)
   },
  'user2ID': {
     id: 'user2',
     email: 'user2@example.com',
-    password: 'bonkers'
+    password:  bcrypt.hashSync('bonkers', 10)
   }
 };
 
