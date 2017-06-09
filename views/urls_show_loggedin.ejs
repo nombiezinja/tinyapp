@@ -7,12 +7,14 @@
     <%- include('partials/_header') %>
     <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
     <% if (username === allUrls[shortURL].userID) { %>
-        <h3>The Tiny URL is <%= shortURL %></h3>
-        <form method="POST" action= "/urls/<%= shortURL %>">
-          <label for="newURL">Enter the new long URL to update the long URL for <%= shortURL %>:</label>
+        <h3>The TinyURL for <%= allUrls[shortURL].link %> is <%= shortURL %></h3>
+          <form method="POST" action= "/urls/<%= shortURL %>">
+          <label for="newURL">Enter the new long URL to edit <%= shortURL %>:</label>
           <input id="newURL" type="text" name="newURL" placeholder="http://" style="width: 300px">
-          <button type="submit">Update</button>
+          <button type="submit">Submit</button>
         </form>
+        <br>
+        <br>
     <% } else { %>
         <h2>Whoa there bud! Looks like you're trying to edit someone else's URL</h2>
         <br>

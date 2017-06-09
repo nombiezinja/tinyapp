@@ -5,8 +5,20 @@
   </head>
   <body style="font-size:20px; padding:50px;">
     <%- include('partials/_header') %>
+
+    <% if (username) { %>
+
+        <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
+          <h2>  Welcome back friendo ◕ ◡ ◕</h2>
+          <br>
+          <br>
+          <br>
+          <a href = 'urls'>Back to the front page</a>
+        </div>
+
+      <% } else { %>
       <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
-        <h2>Please register before shortening your URL</h2>
+        <h2>Register to create a TinyURL</h2>
         <form method="POST" action= "/register">
           <label for="email">Enter your email:</label>
           <input id="email" type="email" name="email" style="width:   233px">
@@ -18,5 +30,6 @@
            <button type="submit">Submit</button>
         </form>
       </div>
+      <% } %>
   </body>
 </html>

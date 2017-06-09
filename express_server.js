@@ -6,15 +6,18 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const userService = require('./services/user_service');
 
+const users = userService.users;
+const urlDatabase = userService.urlDatabase;
+const rando = userService.randomString
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   secret: 'I listen to John Newman unironically.',
 }));
 
-app.get('/', (req,res, next) => {
-  res.locals.user = user_service.find(req.session.userID);
-  next();
-});
+// app.get('/', (req,res, next) => {
+//   res.locals.user = user_service.find(req.session.userID);
+//   next();
+// });
 
 // app.use(function (err, req, res, next) {
 //   console.error(err.stack);
@@ -22,33 +25,7 @@ app.get('/', (req,res, next) => {
 // });
 app.set('view engine', 'ejs');
 
-const urlDatabase = {
-  'b2xVn2': {
-    link : 'http://www.lighthouselabs.ca',
-    userID: 'user1'
-  },
-  '9sm5xK': {
-    link : 'http://www.google.com',
-    userID: 'user2'
-  },
-  '8jf92V': {
-    link : 'http://www.gmail.com',
-    userID: 'user1'
-  }
-};
 
-const users = {
-  'user1ID': {
-    id: 'user1',
-    email: 'user@example.com',
-    password:  bcrypt.hashSync('bonkers', 10)
-  },
- 'user2ID': {
-    id: 'user2',
-    email: 'user2@example.com',
-    password:  bcrypt.hashSync('bonkers', 10)
-  }
-};
 
 const findLink = (username) => {
   const userURLs = {};
@@ -63,7 +40,7 @@ const findLink = (username) => {
 
 
 app.get('/', (req,res) => {
-  if (!req.esssion.userID) {
+  if (req.session.userID) {
     res.redirect('/urls');
   } else {
     res.redirect('/login');
@@ -81,7 +58,11 @@ app.get('/urls', (req, res) => {
                        users: users
                      };
 
-  res.render('urls_index', templateVars);
+  if(!req.session.userID) {
+    res.render('urls_index', templateVars);
+  } else {
+  res.render('urls_index_loggedin', templateVars);
+  }
 });
 
 //call urls_new.ejs to display for /urls/new page
@@ -92,7 +73,11 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
+  if(req.session.userID) {
+    res.redirect('/urls');
+  } else {
   res.render('registration', {username: req.session.userID});
+  }
 })
 
 //registration submission
@@ -120,7 +105,7 @@ app.post('/register', (req, res) => {
 
   let userId;
   do {
-      userID = userService.randomString(8);
+      userID = rando(8);
   } while(users[userID])
 
 
@@ -139,8 +124,13 @@ app.post('/register', (req, res) => {
 
 //login page
 app.get('/login', (req, res) => {
-  res.render('login', {users: users,
-                       username:req.session.userID});
+  if(!req.session.userID) {
+    res.render('login', {users: users,
+                       username:req.session.userID} );
+  } else {
+    res.render('loggedin', {users: users,
+                       username:req.session.userID})
+  }
 });
 
 //set cookie when submit log in form, redirect to log in page
@@ -175,10 +165,10 @@ app.post('/login', (req, res) => {
 
 })
 
-//generate randomStringm shortURL for longURL submitted through form
+//generate randomString shortURL for longURL submitted through form
 //put in urlDatabase object, redirect
 app.post('/urls', (req, res) => {
-  let shortURL = userService.randomString(6);
+  let shortURL = rando(6);
   console.log(shortURL);
   console.log(urlDatabase[shortURL]);
   console.log(urlDatabase);
@@ -193,9 +183,38 @@ app.post('/urls', (req, res) => {
 //delete from database when click button
 //redirect to /urls page
 app.post('/urls/:shortURL/delete', (req, res) => {
+ //note to self-issa object
+ const userUniqueUrl = findLink(req.session.userID);
+
+ let templateVars = { userUrls: userUniqueUrl,
+                      urls:  urlDatabase,
+                      shortURL: req.params.id,
+                      username: req.session.userID,
+                      users: users
+                    };
+  if(!userUniqueUrl[req.params.shortURL]) {
+    res.render('no_access',{username: req.session.userID})
+  } else {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
+  }
 });
+
+//fix this
+app.get('/urls/:shortURL/delete', (req, res) => {
+
+  const userUniqueUrl = findLink(req.session.userID);
+
+  if(!userUniqueUrl[req.params.shortURL]) {
+    res.render('no_access',{username: req.session.userID})
+  }else {
+  res.redirect('/urls')
+
+  }
+
+});
+
+
 
 //display shortURL on new after form submitted
 //(realistically: any link that says /url/xxx displays xxx)
@@ -209,11 +228,15 @@ app.get('/urls/:id', (req, res) => {
                        username: req.session.userID,
                        users: users
                      };
-
-  if(!req.session.userID) {
-    res.render('urls_show', templateVars);
+  if(!urlDatabase[req.params.id]) {
+    res.status(404).send('Uh-oh, looks like that TinyURL does not exist. Check again!');
   } else {
-    res.render('urls_show_loggedin', templateVars);
+
+     if(!req.session.userID) {
+       res.render('urls_show', templateVars);
+     } else {
+       res.render('urls_show_loggedin', templateVars);
+     }
   }
 });
 
@@ -251,10 +274,6 @@ app.post('/logout', (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
 
-//random string generating function
-// let rando = function randomString(length) {
-//     return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
-// }
