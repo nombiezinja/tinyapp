@@ -1,10 +1,5 @@
 const bcrypt = require('bcrypt');
 
-function randomString(length) {
-    return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
-}
-
-
 const urlDatabase = {
   'b2xVn2': {
     link : 'http://www.lighthouselabs.ca',
@@ -33,10 +28,45 @@ const users = {
   }
 };
 
+function randomString(length) {
+    return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
+}
+
+const findLink = (username) => {
+  const userURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === username && !userURLs[shortURL]) {
+       userURLs[shortURL] = urlDatabase[shortURL].link;
+    }
+  }
+  return userURLs;
+};
+
+const findUserLogin = (email) => {
+  for (let registered in users) {
+    if(users[registered].email === email) {
+      let user = users[registered];
+      return user;
+    }
+  }
+}
+
+const findUser = (email) => {
+  for (let registered in users) {
+    if (users[registered].email === email) {
+      return true;
+    }
+  }
+  return false;
+}
 
 
 module.exports = {
   randomString,
   urlDatabase,
   users,
+  findLink,
+  findUserLogin,
+  findUser
+
 };

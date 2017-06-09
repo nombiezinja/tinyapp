@@ -8,34 +8,18 @@ const userService = require('./services/user_service');
 
 const users = userService.users;
 const urlDatabase = userService.urlDatabase;
-const rando = userService.randomString
+const rando = userService.randomString;
+const findLink = userService.findLink;
+const findUserLogin = userService.findUserLogin;
+const findUser = userService.findUser;
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   secret: 'I listen to John Newman unironically.',
 }));
 
-// app.get('/', (req,res, next) => {
-//   res.locals.user = user_service.find(req.session.userID);
-//   next();
-// });
-
-// app.use(function (err, req, res, next) {
-//   console.error(err.stack);
-//   res.status(403).render('error403');
-// });
 app.set('view engine', 'ejs');
 
-
-
-const findLink = (username) => {
-  const userURLs = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === username && !userURLs[shortURL]) {
-       userURLs[shortURL] = urlDatabase[shortURL].link;
-    }
-  }
-  return userURLs;
-};
 
 
 
@@ -55,7 +39,6 @@ app.get('/urls', (req, res) => {
 
   let templateVars = { urls: userUniqueUrl,
                        username: req.session.userID,
-                       users: users
                      };
 
   if(!req.session.userID) {
@@ -88,15 +71,6 @@ app.post('/register', (req, res) => {
     res.status(403).send('Oops, you must enter an email and a password!');  // TODO: double check that jeremy didn't ruin this
   }
 //if email already exists
-  const findUser = (email) => {
-    for (let registered in users) {
-      if (users[registered].email === email) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   console.log(findUser(req.body.email));
 
   if (findUser(req.body.email)) {
@@ -138,25 +112,17 @@ app.post('/login', (req, res) => {
 
   const userEmail = req.body.email
   //search to see if username matches database
-  const findUser = (email) => {
-    for (let registered in users) {
-      if(users[registered].email === email) {
-        let user_ID = users[registered]
-        return user_ID;
-      }
-    }
-  }
 
    //search to see if password matches username
-  if(!findUser(userEmail)) {
+  if(!findUserLogin(userEmail)) {
     res.status(403).send('Oops, looks like this email hasn\'t been registered yet.');
   } else {
-    let user_ID = findUser(userEmail);
-    if (bcrypt.compareSync(req.body.password, user_ID.password)) {
-      req.session.userID = user_ID.id;
+    let user = findUserLogin(userEmail);
+    if (bcrypt.compareSync(req.body.password, user.password)) {
+      req.session.userID = user.id;
 
 
-      // res.cookie ('username', user_ID.id);
+      // res.cookie ('username', user.id);
       res.redirect('/login');
     } else {
       res.status(403).send('Oops, looks like you have entered the wrong information. Yoink!');
