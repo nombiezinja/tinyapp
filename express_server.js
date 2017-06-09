@@ -3,13 +3,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-app.use(function (err, req, res, next) {
-  console.error(err.stack);
-  res.status(403).render('error403');
-});
+// app.use(function (err, req, res, next) {
+//   console.error(err.stack);
+//   res.status(403).render('error403');
+// });
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
@@ -25,9 +26,7 @@ const urlDatabase = {
     link : 'http://www.gmail.com',
     userID: 'user1'
   }
-}
-
-
+};
 
 const users = {
   'user1ID': {
@@ -40,7 +39,7 @@ const users = {
     email: 'user2@example.com',
     password: 'bonkers'
   }
-}
+};
 
 const findLink = (username) => {
   const userURLs = {};
@@ -50,34 +49,13 @@ const findLink = (username) => {
     }
   }
   return userURLs;
-}
-// app.use(handleErrors);
+};
 
-
-
-// function handleErrors(err, req, res, next) {
-//   res.send('/errors');
-// }
 
 // app.get('/', (req,res, next) => {
 //   res.locals.user = userService.find(req.cookie.userId);
 //   next();
 // });
-
-
-
-app.get('/', (req, res) => {
-  res.end('Hello!');
-});
-
-app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
-});
-
-//say hello for /hello page
-app.get('/hello', (req, res) => {
-  res.end('<html><body>Hello<b>world</b><body></html>\n');
-});
 
 
 //call the urls_index.ejs file to display for /urls page
@@ -90,6 +68,7 @@ app.get('/urls', (req, res) => {
                        username: req.cookies['username'],
                        users: users
                      };
+
   res.render('urls_index', templateVars);
 });
 
@@ -101,25 +80,24 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.render('registration', {username:req.cookies['username']});
+  res.render('registration', {username: req.cookies['username']});
 })
 
 //registration submission
 app.post('/register', (req, res) => {
-  const userID = rando(6);
 //if no data submitted
+
   if(!req.body.email||!req.body.password) {
-    res.sendStatus(403);
+    res.status(403).send('Oops, you must enter an email and a password!');  // TODO: double check that jeremy didn't ruin this
   }
 //if email already exists
   const findUser = (email) => {
-    let flag = false;
     for (let registered in users) {
       if (users[registered].email === email) {
-        flag = true;
-        return flag;
+        return true;
       }
     }
+    return false;
   }
 
   console.log(findUser(req.body.email));
@@ -128,10 +106,13 @@ app.post('/register', (req, res) => {
     res.sendStatus(403);
   }
 
+  const userID = rando(6);
   if (!users[userID]) {
     users[userID] = { id: userID,
                       email: req.body.email,
-                      password: req.body.password }
+                      password: bcrypt.hashSync(req.body.password, 10) }
+  } else {
+    //  ?????do a while loop here later
   }
 
   console.log(users);
@@ -155,39 +136,40 @@ app.post('/login', (req, res) => {
     for (let registered in users) {
       if(users[registered].email === email) {
         let user_ID = users[registered]
-        return user_ID
+        return user_ID;
       }
     }
   }
+
 
    //search to see if password matches username
   if(!findUser(userEmail)) {
     res.sendStatus(403);
   } else {
     let user_ID = findUser(userEmail);
-    if (user_ID.password === req.body.password) {
+    if (bcrypt.compareSync(req.body.password, user_ID.password)) {
       res.cookie ('username', user_ID.id);
       res.redirect('/login');
     } else {
-      res.sendStatus(403);
+      res.status(403).send('Oops, looks like you have entered the wrong information. Yoink!');
     }
-    // console.log(user_ID);
-
   }
 
 })
 
-//clear cookie when submit log out form, redirect to /urls
-app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
-})
 //generate random shortURL for longURL submitted through form
 //put in urlDatabase object, redirect
 app.post('/urls', (req, res) => {
   let shortURL = rando(6);
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect('http://localhost:3000/urls/' + shortURL);
+  console.log(shortURL);
+  console.log(urlDatabase[shortURL]);
+  console.log(urlDatabase);
+  console.log(urlDatabase.b2xVn2);
+  if (!urlDatabase[shortURL]){
+    urlDatabase[shortURL] = { link: req.body.longURL,
+                              userID : req.cookies['username']};
+    res.redirect('http://localhost:3000/urls/' + shortURL);
+  };
 });
 
 //delete from database when click button
@@ -213,7 +195,7 @@ app.get('/urls/:id', (req, res) => {
   if(!req.cookies['username']) {
     res.render('registration', templateVars);
   } else {
-  res.render('urls_show', templateVars);
+    res.render('urls_show', templateVars);
   }
 });
 
@@ -222,13 +204,13 @@ app.get('/urls/:id', (req, res) => {
 app.post('/urls/:id', (req, res) => {
   // let shortURL = req.originalUrl.slice(6);
   let shortURL = req.params.id
-  urlDatabase[shortURL] = req.body.newURL;
+  urlDatabase[shortURL].link = req.body.newURL;
   res.redirect(shortURL);//why does this work??
 });
 
 //redirects to actual website of longURL
 app.get('/u/:shortURL', (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL].link;
   res.redirect(longURL);
 });
 
@@ -236,6 +218,18 @@ app.get('/u/:shortURL', (req, res) => {
 //   res.status(403).render('error403', {username: req.cookies['username'],
 //                        users: users})
 // });
+
+
+//clear cookie when submit log out form, redirect to /urls
+app.get('/logout', (req, res) => {
+  res.render('logout', {users: users,
+                     username:req.cookies['username']});
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('logout');
+})
 
 
 app.listen(PORT, () => {

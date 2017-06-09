@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>TinyApp</title>
+    <title>TinyApp\(◕ ◡ ◕\)</title>
   </head>
   <body style="font-size:20px; padding:50px;">
     <%- include('partials/_header') %>
     <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
-    <% if (username === allUrls[shortURL].userID) { %>}
+    <% if (username === allUrls[shortURL].userID) { %>
         <h3>The short URL is <%= shortURL %></h3>
         <form method="POST" action= "/urls/<%= shortURL %>">
           <label for="newURL">Enter the new long URL to update the long URL for <%= shortURL %>:</label>

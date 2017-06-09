@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head></head>
+  <head><title>TinyApp\(◕ ◡ ◕\)</title></head>
   <body style="font-size:20px; padding:50px;">
     <% include partials/_header %>
     <% if (!username) { %>
@@ -8,8 +8,8 @@
            <h2>Please <a href = '/register'>register </a>or <a href = '/login'>log in</a> before shortening your URL (´ω｀)</h2>
         </div>
     <% } else {%>
-    <div>
-      <form action="/urls" method="POST" style="margin:150px;">
+    <div style='padding-left:25px; padding-right: 50px; padding-top: 20px; padding-bottom: 50px'>
+      <form action="/urls" method="POST" style="margin:0px;">
         <label for="longURL">Enter a URL:</label>
         <input id="longURL" type="text" name="longURL" placeholder="http://" style="width:  300px">
         <input type="submit" value="Submit">

@@ -25,19 +25,35 @@ const urlDatabase = {
     userID: 'user1'
   }
 }
-var username = "user1"
 
-const findlink = (username) => {
-  const userURL = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === username && !userURL[shortURL]) {
-       userURL[shortURL] = urlDatabase[shortURL].link;
-    }
-  }
-  return userURL
+let rando = function randomString(length) {
+    return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
 }
 
-console.log(findlink(username));
+const shortURL = rando(6)
+
+console.log(urlDatabase);
+
+urlDatabase[shortURL].link = "hi,com";
+
+// if (!urlDatabase[shortURL]){
+//   urlDatabase[shortURL].link = 'www.hi.com';
+//   urlDatabase[shortURL].userID = 'ti';
+// };
+
+// var username = "user1"
+
+// const findlink = (username) => {
+//   const userURL = {};
+//   for (let shortURL in urlDatabase) {
+//     if (urlDatabase[shortURL].userID === username && !userURL[shortURL]) {
+//        userURL[shortURL] = urlDatabase[shortURL].link;
+//     }
+//   }
+//   return userURL
+// }
+
+// console.log(findlink(username));
 // for (let shortURL in urlDatabase) {
 //   console.log(urlDatabase[shortURL].userID)
 // }
