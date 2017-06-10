@@ -146,7 +146,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 //can't delete when not logged in or when user did not create this link
   if(!userUniqueUrl[req.params.shortURL]) {
     res.render('no_access', {username: req.session.userID,
-                             userEmail: req.session.userEmail});
+      userEmail: req.session.userEmail});
   } else {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
