@@ -49,6 +49,7 @@ const findUserLogin = (email) => {
       return user;
     }
   }
+  return user;
 }
 
 const findUser = (email) => {
@@ -61,12 +62,24 @@ const findUser = (email) => {
 }
 
 
+const findUserEmail = (id) => {
+  for (let registered in users) {
+    if(users[registered].id === id) {
+      let userEmail = users[registered].email ;
+      return userEmail
+    }
+  }
+  return userEmail
+}
+
+
+
 module.exports = {
   randomString,
   urlDatabase,
   users,
   findLink,
   findUserLogin,
-  findUser
-
+  findUser,
+  findUserEmail
 };
