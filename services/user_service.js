@@ -16,12 +16,12 @@ const urlDatabase = {
 };
 
 const users = {
-  'user1ID': {
+  'user1': {
     id: 'user1',
     email: 'user@example.com',
     password:  bcrypt.hashSync('bonkers', 10)
   },
- 'user2ID': {
+ 'user2': {
     id: 'user2',
     email: 'user2@example.com',
     password:  bcrypt.hashSync('bonkers', 10)

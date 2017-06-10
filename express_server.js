@@ -30,31 +30,40 @@ app.get('/', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
+
   const userUniqueUrl = findLink(req.session.userID);
   const templateVars = { urls: userUniqueUrl,
-    username: req.session.userID
+    username: req.session.userID,
+    userEmail: req.session.userEmail
   };
 
 //diff page rendered if logged in
   if(!req.session.userID) {
     res.render('urls_index', templateVars);
   } else {
-    res.render('urls_index_loggedin', templateVars);
+    res.render('urls_index_loggedin', { urls: userUniqueUrl,
+      username: req.session.userID,
+      userEmail: req.session.userEmail
+    });
   }
 });
 
 //call urls_new.ejs to display for /urls/new page
 app.get('/urls/new', (req, res) => {
   let templateVars = { username: req.session.userID,
-    users: users};
+    users: users,
+    userEmail: req.session.userEmail};
   res.render('urls_new', templateVars);
 });
+
+
 
 app.get('/register', (req, res) => {
   if(req.session.userID) {
     res.redirect('/urls');
   } else {
-    res.render('registration', {username: req.session.userID});
+    res.render('registration', {username: req.session.userID,
+      userEmail: req.session.userEmail});
   }
 });
 
@@ -78,16 +87,19 @@ app.post('/register', (req, res) => {
     password: bcrypt.hashSync(req.body.password, 10) };
 //set cookie
   req.session.userID = userID;
+  req.session.userEmail = req.body.email;
   res.redirect('/urls');
 });
 
 app.get('/login', (req, res) => {
   if(!req.session.userID) {
     res.render('login', {users: users,
-      username: req.session.userID} );
+      username: req.session.userID,
+      userEmail: req.session.userEmail} );
   } else {
     res.render('loggedin', {users: users,
-      username: req.session.userID});
+      username: req.session.userID,
+      userEmail: req.session.userEmail});
   }
 });
 
@@ -101,6 +113,7 @@ app.post('/login', (req, res) => {
     if (bcrypt.compareSync(req.body.password, user.password)) {
 //set cookie
       req.session.userID = user.id;
+      req.session.userEmail = userEmail;
       res.redirect('/login');
     } else {
       res.status(403).send('Oops, looks like you have entered the wrong information. Yoink!');
@@ -127,11 +140,13 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     urls: urlDatabase,
     shortURL: req.params.id,
     username: req.session.userID,
-    users: users
+    users: users,
+    userEmail: req.session.userEmail
   };
 //can't delete when not logged in or when user did not create this link
   if(!userUniqueUrl[req.params.shortURL]) {
-    res.render('no_access', {username: req.session.userID});
+    res.render('no_access', {username: req.session.userID,
+                             userEmail: req.session.userEmail});
   } else {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
@@ -144,7 +159,8 @@ app.get('/urls/:shortURL/delete', (req, res) => {
   const userUniqueUrl = findLink(req.session.userID);
 
   if(!userUniqueUrl[req.params.shortURL]) {
-    res.render('no_access', {username: req.session.userID});
+    res.render('no_access', {username: req.session.userID,
+      userEmail: req.session.userEmail});
   }else {
     res.redirect('/urls');
   }
@@ -158,7 +174,8 @@ app.get('/urls/:id', (req, res) => {
     allUrls: urlDatabase,
     shortURL: req.params.id,
     username: req.session.userID,
-    users: users
+    users: users,
+    userEmail: req.session.userEmail
   };
   if(!urlDatabase[req.params.id]) {
     res.status(404).send('Uh-oh, looks like that TinyURL does not exist. Check again!');
@@ -187,7 +204,8 @@ app.get('/u/:shortURL', (req, res) => {
 //clear cookie when log out form submitted, redirect to /urls
 app.get('/logout', (req, res) => {
   res.render('logout', {users: users,
-    username: req.session.userID});
+    username: req.session.userID,
+    userEmail: req.session.userEmail});
 });
 
 app.post('/logout', (req, res) => {
