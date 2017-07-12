@@ -1,7 +1,8 @@
-# TinyApp Project
+## Description
 
-TinyApp is a full stack web application built with Node and Express, it allows users to shorten long URLs to short URLs through a simple and friendly interface.
+TinyApp is a full stack web app built with Node and Express with the purpose of learning.
 
+Users can register and log in with email, then shorten long URLs to short URLs through a simple and friendly interface.
 
 
 ## Final Product
@@ -12,15 +13,15 @@ TinyApp is a full stack web application built with Node and Express, it allows u
 
 ## Dependencies
 
--Node.js
--Express
--EJS
--body-parser
--cookie-session
--bcrypt
+* Node.js
+* Express
+* EJS
+* body-parser
+* cookie-session
+* bcrypt
 
 ## Getting started
 
--Install all dependencies(using the 'npm install' command)
--Run the development web server using the 'node express_server.js' command
--Pre-existing user-database and link included, but feel free to register new users and look around!
+* Install all dependencies(using the 'npm install' command)
+* Run the development web server using the 'node express_server.js' command
+* Pre-existing user-database and link included for testing purposes
